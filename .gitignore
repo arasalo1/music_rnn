@@ -1,3 +1,5 @@
 lpd/
 __pycache__
 midi/*
+models/*
+.ipynb_checkpoints/
