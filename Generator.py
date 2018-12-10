@@ -8,14 +8,18 @@ import keras
 
 class Generator(keras.utils.Sequence):
 
-  def __init__(self,root,sequence_length=200,subset=1.0,
+  def __init__(self,root,file_name=None,sequence_length=200,subset=1.0,
                 batch_size=32,shuffle=True):
     self.root = root
+    self.file_name = file_name
     self.batch_size = batch_size
     self.shuffle = shuffle
     self.sequence_length = sequence_length
     self.subset = subset
-    self.files = self.list_files()
+    if self.file_name is not None:
+      self.files = self.list_files_from_file()
+    else:
+      self.files = self.list_files()
     if subset != 1.0:
       self.files = self.files[:int(subset*len(self.files))]
     self.samples = 0
@@ -42,6 +46,14 @@ class Generator(keras.utils.Sequence):
     X, y = self.__load(indexes)
 
     return X, y
+
+  def list_files_from_file(self):
+    with open(self.file_name,'r') as f:
+      files = [line.rstrip('\n') for line in f]
+    if self.subset != 1.0:
+      return files[:int(self.subset*len(files))]
+    else:
+      return files
 
   def list_files(self):
     files = glob.glob(self.root + '/**/*.npz', recursive=True)

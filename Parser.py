@@ -6,17 +6,29 @@ import matplotlib.pyplot as plt
 
 class Parser:
 
-  def __init__(self,root,sequence_length=200,subset=1.0,lazy=False):
+  def __init__(self,root,file_name=None,sequence_length=200,subset=1.0,lazy=False):
     self.root = root
+    self.file_name = file_name
     self.sequence_length = sequence_length
     self.subset = subset
     self.lazy = lazy
-    self.files = self.list_files()
+    if self.file_name is not None:
+      self.files = self.list_files_from_file()
+    else:
+      self.files = self.list_files()
     print("Number of files: %i"%len(self.files))
     if lazy:
       self.tracks = self.__load_lazy()
     else:
       self.tracks = self.__load()
+
+  def list_files_from_file(self):
+    with open(self.file_name,'r') as f:
+      files = [line.rstrip('\n') for line in f]
+    if self.subset != 1.0:
+      return files[:int(self.subset*len(files))]
+    else:
+      return files
 
   def list_files(self):
     files = glob.glob(self.root + '/**/*.npz', recursive=True)
