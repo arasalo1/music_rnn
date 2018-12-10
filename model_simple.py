@@ -3,10 +3,11 @@ import pypianoroll
 import tensorflow as tf
 import keras
 from Generator import Generator
+from Parser import Parser
 
 
-training_generator = Generator('lpd')
-validation_generator = Generator('lpd_valid')
+training_generator = Generator('../lpd')
+validation_generator = Generator('../lpd_valid')
 
 model = keras.Sequential()
 model.add(keras.layers.LSTM(300,input_shape=(200,128),return_sequences=True))
@@ -23,6 +24,8 @@ model.fit_generator(generator=training_generator,
                     epochs=1,
                     workers=2)
 
+
+files = Parser('lpd',subset=0.001,lazy=False)
 
 init = files.tracks[2100].reshape(1,200,128)
 clip = np.empty([200,128])
