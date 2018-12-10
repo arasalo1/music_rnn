@@ -1,12 +1,15 @@
 import numpy as np
-import pypianoroll
+import pypianoroll as pp
 import tensorflow as tf
 import keras
 from Generator import Generator
 from Parser import Parser
+import matplotlib as mpl 
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 print("load training")
-training_generator = Generator('../lpd',file_name="train_names.txt",subset=0.5)
+training_generator = Generator('../lpd',file_name="train_names.txt",subset=0.1)
 print("load validation")
 validation_generator = Generator('../lpd_valid',file_name="test_names.txt")
 
@@ -23,7 +26,7 @@ model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
                     epochs=1,
-                    workers=2)
+                    workers=6)
 
 
 files = Parser('../lpd_valid',file_name='test_names.txt',subset=0.001)
@@ -35,5 +38,8 @@ for i in range(200):
     init = np.roll(init,(0,-1,0))
     init[0,199,] = prediction
 
-midi_file = 'midi/out2.mid'
-pypianoroll.Multitrack(tracks=[pypianoroll.Track(pianoroll=clip)]).write(midi_file)
+midi_file = 'out2.mid'
+pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
+
+fig,ax = pp.Track(pianoroll=clip).plot()
+fig.savefig("song.png")
