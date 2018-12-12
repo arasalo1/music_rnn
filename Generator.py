@@ -80,9 +80,9 @@ class Generator(keras.utils.Sequence):
           end = self.sequence_length
           r_len = roll.shape[0]
           while(end+1<r_len):
-            X.append(roll[start:end])
+            X.append((roll[start:end]>0).astype(float))
             # we are trying to predict the next note
-            labels.append(roll[end+1])
+            labels.append((roll[end+1]>0).astype(int))
             start = end
             end += self.sequence_length
           break
