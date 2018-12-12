@@ -13,17 +13,18 @@ sl = 100
 print("loading model")
 model = keras.models.load_model("simple6.h5")
 print("model loaded")
-files = Parser('../lpd_valid',file_name='test_names.txt',sequence_length=sl,subset=0.002)
-init = files.tracks[21].reshape(1,sl,128)
-init = (init>0).astype(int)
+validation_generator = validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=1)
+files = validation_generator.__getitem__(21)
+init = files[0][4:5]
+#init = (init>0).astype(float)
 #print(init)
-le = 600
-clip = np.empty([600,128])
-for i in range(600):
+le = 1000
+clip = np.empty([le,128])
+for i in range(le):
     print("iteration: %i"%i, end='\r')
-    prediction = model.predict(init)
-    clip[i,] = prediction[0,]
-    init = np.roll(init,(0,-1,0))
+    prediction = (model.predict(init)[0,]>0.01).astype(float)
+    clip[i,] = prediction
+    init = np.roll(init,-1,axis=1)
     init[0,-1,] = prediction
 
 print("\nFinished predicting")
