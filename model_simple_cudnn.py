@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 sl = 150
 b = 32
 print("load training")
-training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b,subset=0.2)
+training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
 print("load validation")
 validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
