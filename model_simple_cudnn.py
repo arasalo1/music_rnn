@@ -11,18 +11,18 @@ import matplotlib.pyplot as plt
 sl = 150
 b = 32
 print("load training")
-training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
+training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b,subset=0.2)
 print("load validation")
 validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
 model.add(keras.layers.CuDNNLSTM(150,input_shape=(sl,128),return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
-model.add(keras.layers.CuDNNLSTM(150,input_shape=(200,128)))
+model.add(keras.layers.CuDNNLSTM(150))
 model.add(keras.layers.Dense(130))
 model.add(keras.layers.Dense(128,activation='softmax'))
 
-model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
+model.compile(loss='binary_crossentropy',optimizer='adam')
 
 model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
@@ -47,9 +47,9 @@ for i in range(le):
 
 print("\nsaving")
 np.save('out2.npy',clip)
-midi_file = 'out2.mid'
-pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
+#midi_file = 'out2.mid'
+#pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
 
-fig,ax = pp.Track(pianoroll=clip).plot()
-fig.savefig("song.png")
-print("finished")
+#fig,ax = pp.Track(pianoroll=clip).plot()
+#fig.savefig("song.png")
+#print("finished")
