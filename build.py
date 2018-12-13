@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 sl = 100
 
 print("loading model")
-model = keras.models.load_model("simple6.h5")
+model = keras.models.load_model("compressed.h5")
 print("model loaded")
 validation_generator = validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=1)
 files = validation_generator.__getitem__(21)
@@ -19,7 +19,7 @@ init = files[0][4:5]
 #init = (init>0).astype(float)
 #print(init)
 le = 1000
-clip = np.empty([le,128])
+clip = np.empty([le,1])
 for i in range(le):
     print("iteration: %i"%i, end='\r')
     prediction = (model.predict(init)[0,]>0.01).astype(float)
