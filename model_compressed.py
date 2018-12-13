@@ -2,7 +2,7 @@ import numpy as np
 import pypianoroll as pp
 import tensorflow as tf
 import keras
-from Generator import Generator
+from Generator_compressed import Generator_compressed
 from Parser import Parser
 import matplotlib as mpl 
 mpl.use('Agg')
@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 sl = 100
 b = 32
 print("load training")
-training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
+training_generator = Generator_compressed('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b,subset=0.3)
 print("load validation")
-validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
+validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
 model.add(keras.layers.CuDNNLSTM(150,input_shape=(sl,1),return_sequences=True))
@@ -22,7 +22,7 @@ model.add(keras.layers.CuDNNLSTM(150))
 model.add(keras.layers.Dense(130))
 model.add(keras.layers.Dense(1,activation='softmax'))
 
-model.compile(loss='binary_crossentropy',optimizer='adam')
+model.compile(loss='mse',optimizer='adam')
 
 model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
@@ -46,9 +46,9 @@ for i in range(le):
 
 print("\nsaving")
 np.save('out2.npy',clip)
-midi_file = 'out2.mid'
-pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
+#midi_file = 'out2.mid'
+#pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
 
-fig,ax = pp.Track(pianoroll=clip).plot()
-fig.savefig("song.png")
-print("finished")
+#fig,ax = pp.Track(pianoroll=clip).plot()
+#fig.savefig("song.png")
+#print("finished")

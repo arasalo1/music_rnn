@@ -80,7 +80,7 @@ class Generator_compressed(keras.utils.Sequence):
           end = self.sequence_length
           r_len = roll.shape[0]
           while(end+1<r_len):
-            X.append(np.argmax(roll[start:end]))
+            X.append(np.argmax(roll[start:end],axis=1).reshape(self.sequence_length,1))
             # we are trying to predict the next note
             labels.append(np.argmax(roll[end+1]))
             start = end
