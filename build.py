@@ -7,23 +7,33 @@ from Parser import Parser
 import matplotlib as mpl 
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import sys
 
-sl = 150
+args = sys.argv
+index = int(args[1])
+
+sl = 300
 
 print("loading model")
 model = keras.models.load_model("simple7.h5")
 print("model loaded")
 validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=1)
-files = validation_generator.__getitem__(21)
+files = validation_generator.__getitem__(index)
 init = files[0][4:5]
 #init = (init>0).astype(float)
-#print(init)
-le = 1000
+print(init.shape)
+le = 200
 clip = np.empty([le,128])
 for i in range(le):
     print("iteration: %i"%i, end='\r')
-    #prediction = (model.predict(init)[0,]>0.01).astype(float)
-    prediction = model.predict(init)[0,]
+    #print(model.predict(init).shape)
+    prediction = (model.predict(init)[0,]>0.01).astype(float)
+    #pred = model.predict(init)[0,]
+    #print(pred.shape)
+    #pred = pred[0,]
+    #prediction = np.zeros(128)
+    #prediction[np.argmax(pred)] = 1
+    #prediction = model.predict(init)[0,]
     #print(prediction)
     clip[i,] = prediction
     init = np.roll(init,-1,axis=1)

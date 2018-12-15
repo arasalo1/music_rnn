@@ -8,7 +8,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-sl = 150
+sl = 300
 b = 32
 print("load training")
 training_generator = Generator('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
@@ -16,18 +16,20 @@ print("load validation")
 validation_generator = Generator('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
-model.add(keras.layers.CuDNNLSTM(150,input_shape=(sl,128),return_sequences=True))
+model.add(keras.layers.CuDNNLSTM(130,input_shape=(sl,128),return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
-model.add(keras.layers.CuDNNLSTM(150))
+model.add(keras.layers.CuDNNLSTM(300,return_sequences=True))
+model.add(keras.layers.Dropout(0.2))
+model.add(keras.layers.CuDNNLSTM(130))
 model.add(keras.layers.Dense(130))
 model.add(keras.layers.Dense(128,activation='softmax'))
 
-model.compile(loss='binary_crossentropy',optimizer='adam')
+model.compile(loss='mean_squared_error',optimizer='adam')
 
 model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
-                    epochs=1,
+                    epochs=5,
                     workers=10)
 
 model.save("simple7.h5")

@@ -52,7 +52,7 @@ class Parser:
           start = 0
           end = self.sequence_length
           r_len = roll.shape[0]
-          while(end<r_len):
+          while(end<r_len and roll[start:end] != 0):
             yield roll[start:end]
             start = end
             end += self.sequence_length

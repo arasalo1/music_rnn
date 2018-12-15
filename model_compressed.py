@@ -8,26 +8,28 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-sl = 100
+sl = 150
 b = 32
 print("load training")
-training_generator = Generator_compressed('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b,subset=0.3)
+training_generator = Generator_compressed('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
 print("load validation")
 validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
-model.add(keras.layers.CuDNNLSTM(150,input_shape=(sl,1),return_sequences=True))
+model.add(keras.layers.CuDNNLSTM(200,input_shape=(sl,1),return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
-model.add(keras.layers.CuDNNLSTM(150))
+model.add(keras.layers.CuDNNLSTM(150,return_sequences=True))
+model.add(keras.layers.Dropout(0.2))
+model.add(keras.layers.CuDNNLSTM(100))
 model.add(keras.layers.Dense(130))
-model.add(keras.layers.Dense(1,activation='softmax'))
+model.add(keras.layers.Dense(1,activation='linear'))
 
 model.compile(loss='mse',optimizer='adam')
 
 model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
-                    epochs=1,
+                    epochs=2,
                     workers=10)
 
 model.save("compressed.h5")

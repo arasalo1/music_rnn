@@ -8,7 +8,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-sl = 100
+sl = 150
 
 print("loading model")
 model = keras.models.load_model("compressed.h5")
@@ -17,8 +17,9 @@ validation_generator = Generator_compressed('../lpd_valid',file_name="test_names
 files = validation_generator.__getitem__(21)
 init = files[0][4:5]
 #init = (init>0).astype(float)
+print(files[1])
 #print(init)
-le = 1000
+le = 200
 clip = np.empty([le,1])
 for i in range(le):
     #print("iteration: %i"%i, end='\r')
