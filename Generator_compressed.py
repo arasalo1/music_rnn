@@ -82,11 +82,17 @@ class Generator_compressed(keras.utils.Sequence):
           while(end+1<r_len and roll[start:end].sum() != 0):
             current = roll[start:end]
             current = (128-np.argmax(current[:,::-1],axis=1))-1
-            X.append(current.reshape(self.sequence_length,1))
+            b = np.zeros((self.sequence_length, 128))
+            b[np.arange(self.sequence_length), np.transpose(current)] = 1
+            b[:,0] = 0
+            X.append(b)
             # we are trying to predict the next note
             label_current = roll[end+1]
-            label_current = (128-np.argmax(label_current[::-1]))-1
-            labels.append(label_current)
+            label_idx = (128-np.argmax(label_current[::-1]))-1
+            labels_out = np.zeros(128)
+            labels_out[label_idx] = 1
+            labels_out[0] = 0
+            labels.append(labels_out)
             start = end
             end += self.sequence_length
           break

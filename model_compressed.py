@@ -16,32 +16,35 @@ print("load validation")
 validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
-model.add(keras.layers.CuDNNLSTM(200,input_shape=(sl,1),return_sequences=True))
+model.add(keras.layers.CuDNNLSTM(200,input_shape=(sl,128),return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.CuDNNLSTM(150,return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.CuDNNLSTM(100))
 model.add(keras.layers.Dense(130))
-model.add(keras.layers.Dense(1,activation='linear'))
+model.add(keras.layers.Dense(128,activation='softmax'))
 
-model.compile(loss='mse',optimizer='adam')
+model.compile(loss='categorical_crossentropy',optimizer='adam')
 
 model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
-                    epochs=2,
+                    epochs=3,
                     workers=10)
 
-model.save("compressed.h5")
+model.save("compressed2.h5")
 
 print("Create a sample")
 files = validation_generator.__getitem__(21)
 init = files[0][4:5]
 le = 300
-clip = np.empty([le,1])
+clip = np.empty([le,128])
 for i in range(le):
     print("Predicting: %i"%i,end='\r')
-    prediction = model.predict(init)[0,]
+    pred = model.predict(init)[0,]
+    prediction = np.zeros(128)
+    prediction[np.argmax(pred)] = 1
+    prediction[0] = 0
     clip[i,] = prediction
     init = np.roll(init,-1,axis=1)
     init[0,-1,] = prediction
