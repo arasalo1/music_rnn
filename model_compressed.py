@@ -8,7 +8,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-sl = 150
+sl = 100
 b = 32
 print("load training")
 training_generator = Generator_compressed('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
@@ -16,23 +16,33 @@ print("load validation")
 validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
-model.add(keras.layers.CuDNNLSTM(200,input_shape=(sl,128),return_sequences=True))
-model.add(keras.layers.Dropout(0.2))
-model.add(keras.layers.CuDNNLSTM(150,return_sequences=True))
-model.add(keras.layers.Dropout(0.2))
-model.add(keras.layers.CuDNNLSTM(100))
-model.add(keras.layers.Dense(130))
+model.add(keras.layers.CuDNNLSTM(256,input_shape=(sl,128),return_sequences=True))
+model.add(keras.layers.Dropout(0.3))
+model.add(keras.layers.CuDNNLSTM(512,return_sequences=True))
+model.add(keras.layers.Dropout(0.3))
+model.add(keras.layers.CuDNNLSTM(256))
+model.add(keras.layers.Dense(256))
+model.add(keras.layers.Dropout(0.3))
 model.add(keras.layers.Dense(128,activation='softmax'))
 
 model.compile(loss='categorical_crossentropy',optimizer='adam')
 
-model.fit_generator(generator=training_generator,
+history = model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
-                    epochs=3,
+                    epochs=25,
                     workers=10)
 
-model.save("compressed2.h5")
+model.save("compressed3.h5")
+
+fig,ax = plt.subplots()
+ax.plot(history.history['loss'])
+ax.plot(history.history['val_loss'])
+ax.set_title('Loss')
+ax.set_ylabel('loss')
+ax.set_xlabel('epoch')
+ax.legend(['train', 'test'], loc='upper right')
+fig.savefig("loss.png")
 
 print("Create a sample")
 files = validation_generator.__getitem__(21)
@@ -44,13 +54,15 @@ for i in range(le):
     pred = model.predict(init)[0,]
     prediction = np.zeros(128)
     prediction[np.argmax(pred)] = 1
-    prediction[0] = 0
+    #prediction[0] = 0
+    prediction[127] = 0
     clip[i,] = prediction
     init = np.roll(init,-1,axis=1)
     init[0,-1,] = prediction
 
 print("\nsaving")
 np.save('out2.npy',clip)
+keras.backend.clear_session()
 #midi_file = 'out2.mid'
 #pp.Multitrack(tracks=[pp.Track(pianoroll=clip)]).write(midi_file)
 
