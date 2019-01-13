@@ -98,7 +98,8 @@ class Generator_compressed(keras.utils.Sequence):
             start = end
             end += self.sequence_length
           break
-
+    if len(X) == 0:
+      return np.zeros((1,self.sequence_length,128)),np.zeros((1,128))
     return np.array(X), np.array(labels)
 
   # calculate the number of samples

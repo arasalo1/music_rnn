@@ -8,21 +8,21 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-sl = 100
-b = 32
+sl = 200
+b = 8
 print("load training")
 training_generator = Generator_compressed('../lpd',file_name="train_names.txt",sequence_length=sl,batch_size=b)
 print("load validation")
 validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=b)
 
 model = keras.Sequential()
-model.add(keras.layers.CuDNNLSTM(256,input_shape=(sl,128),return_sequences=True))
+model.add(keras.layers.CuDNNLSTM(128,input_shape=(sl,128),return_sequences=True))
 model.add(keras.layers.Dropout(0.3))
-model.add(keras.layers.CuDNNLSTM(512,return_sequences=True))
+model.add(keras.layers.CuDNNLSTM(128,return_sequences=True))
 model.add(keras.layers.Dropout(0.3))
-model.add(keras.layers.CuDNNLSTM(256))
-model.add(keras.layers.Dense(256))
-model.add(keras.layers.Dropout(0.3))
+model.add(keras.layers.CuDNNLSTM(128))
+model.add(keras.layers.Dense(128))
+model.add(keras.layers.Dropout(0.5))
 model.add(keras.layers.Dense(128,activation='softmax'))
 
 model.compile(loss='categorical_crossentropy',optimizer='adam')
@@ -30,10 +30,10 @@ model.compile(loss='categorical_crossentropy',optimizer='adam')
 history = model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
                     use_multiprocessing=True,
-                    epochs=25,
+                    epochs=2,
                     workers=10)
 
-model.save("compressed3.h5")
+model.save("compressed1.h5")
 
 fig,ax = plt.subplots()
 ax.plot(history.history['loss'])
@@ -42,7 +42,7 @@ ax.set_title('Loss')
 ax.set_ylabel('loss')
 ax.set_xlabel('epoch')
 ax.legend(['train', 'test'], loc='upper right')
-fig.savefig("loss.png")
+fig.savefig("loss2.png")
 
 print("Create a sample")
 files = validation_generator.__getitem__(21)
