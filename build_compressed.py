@@ -12,12 +12,12 @@ import sys
 sl = 100
 
 print("loading model")
-model = keras.models.load_model("compressed3.h5")
+model = keras.models.load_model("compressed7.h5")
 print("model loaded")
 validation_generator = Generator_compressed('../lpd_valid',file_name="test_names.txt",sequence_length=sl,batch_size=1)
 init = np.array([])
 end = False
-index = 0
+index = int(sys.argv[1])
 while not end:
   files = validation_generator.__getitem__(index)
   for i in range(files[0].shape[0]):
