@@ -26,7 +26,8 @@ model.add(keras.layers.Dropout(0.5))
 model.add(keras.layers.Dense(128,activation='elu'))
 model.add(keras.layers.Dense(128,activation='softmax'))
 
-model.compile(loss='categorical_crossentropy',optimizer='adam')
+
+model.compile(loss='categorical_crossentropy',optimizer=keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0))
 
 history = model.fit_generator(generator=training_generator,
 					validation_data=validation_generator,
